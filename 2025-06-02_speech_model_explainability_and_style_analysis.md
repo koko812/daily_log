@@ -1,53 +1,65 @@
-## 🧠 セッション概要
+## 🧠 セッション要約
 
-- 音声と言語のマルチモーダルモデル (CLAP, Qwen-Audio) の文献検索
-- 発言スタイルの変換 (アクセントコンバージョン)や言語差を保った音声生成
-- ECAPA, Whisper, HuBERT などの音声埋め込みや中間表現 (PPG, TVs) を用いた発言分析
-- GradCAM, LRP, AttnLRP などの音声Transformerへの可視化アプローチ検討
-- L2-ARCTIC コーパスを使ったL2言語読み手の評価と発言分析
+- 音声キャプショニング（CLAPCap, AudioLDMなど）の基礎と応用を確認
+- 音声スタイル（アクセント、話者特徴）の制御と分析に関する研究を複数調査
+- ECAPAとWhisperなどの音響表現の可視化・解釈可能性（GradCAM, LRP等）に関心を展開
+- 中間表現（PPG, TV, HuBERTなど）を活用した発話変換手法の詳細を検討
+- L2-ARCTICコーパスを使った研究事例を調査し、音素情報や三音素単位表現の使用事例も分析
+- 最終的に、音声と視覚のTransformerモデルに対する解釈可能性手法へと話題が拡張された
 
-## 🔍 課題化した論点
+---
 
-- TVs (Tract Variables) やPPGが特定の発言スタイルの計算にどれほど有用か
-- Whisperは本8言語認識後に音素に変換しているのではないか
-- ECAPAの要素がなぜ誘導性の高い埋め込みを出すのか
-- GradCAM/LRPは音声のどの時間範囲が特定単語に影響したかを表示できるか
+## 🔍 議論が膨らんだ話題
+
+- ECAPA-TDNNの話者埋め込みの精度と構造的要因
+- TVs（調音変数）とPPG（音素確率）を使った音声スタイル変換の精度と制御性
+- ASRモデル（Whisper, HuBERT）に対するGradCAMやLRPの適用の可視化事例
+- L2-ARCTIC に含まれる音素情報の有無や利用可能性の検討
+- Tri-phone表現とその歴史的・技術的背景
+- Transformerベースの解釈可能性技術の展開とその音声モデルへの応用可能性
 
 ---
 
 #### 📚 論文一覧と要約
 
-- **Contrastive Language-Audio Pretraining (CLAP)** (2023, arXiv)
-  - 音声とテキストを対応づける大規模事前学習モデル。contrastive learning を用いて音声分類や検索に高い性能。
+- **Contrastive Language-Audio Pretraining (CLAP)**（2023, arXiv）
+  - 音声とテキストの表現を共通空間で学習する大規模なcontrastive学習モデル。音声分類・検索で最先端性能を示した。
 
-- **CLAPCap: CLAP-powered Audio Captioning** (2023, arXiv)
-  - CLAPを使って音声に該当する文章を生成するモデル。音声理解と自然言語生成の橋渡し。
+- **CLAPCap: CLAP-powered Audio Captioning**（2023, arXiv）
+  - CLAPの音声表現を活用して自然言語による音声キャプションを生成。Zero-shotの言語理解と生成を組み合わせた新アプローチ。
 
-- **AudioLDM** (2023, ICML)
-  - テキストから音声を生成する Latent Diffusion Model。text-to-audio の生成精度向上と制御性を両立させた。
+- **AudioLDM: Text-to-Audio Generation with Latent Diffusion Models**（ICML 2023）
+  - テキストから高品質な音を生成する音声拡散モデル。音響多様性と内容整合性の両立に成功。
 
-- **Accent Conversion with Articulatory Representations** (2023, Interspeech)
-  - PPGs や TVs を用いて非ネイティブ音声をネイティブ発音に変換。発音スタイル制御に有効な中間表現を評価。
+- **AudioCaption: Listen and Tell**（ACL 2021）
+  - 音声キャプショニングのベンチマークと初のデータセット構築を報告。非言語音の記述に焦点。
 
-- **Layer-wise Analysis of a Self-supervised Speech Representation Model** (2021, ASRU)
-  - HuBERTの各層が音響・言語・話者などの情報をどの程度保っているかを定量評価。中間層の意味づけに貢献。
+- **Qwen2.5-Omni Technical Report**（2024, Alibaba）
+  - テキスト・画像・音声の三モーダル統合モデル。音声理解や発話応答能力の実験も含む。
 
-- **Explainability of Speech Recognition Transformers via Gradient-based Attention Visualization** (2023, arXiv)
-  - WhisperやWav2Vec2.0にGrad-CAMを適用し、時間軸での重要領域を可視化。音声理解における注意領域を分析。
+- **Analyzing the Impact of Accent on English Speech: Acoustic and Articulatory Perspectives**（Interspeech 2022）
+  - アクセントが英語音声の調音・音響的特徴に与える影響を定量分析。L2話者の発話の傾向と困難を明らかに。
 
-- **AttnLRP: Attention-Aware Layer-Wise Relevance Propagation for Transformers** (2022, ICASSP)
-  - Transformer に LRP を適用する際、Attention 情報も活かした方法を提案。音声モデルへの応用も意識。
+- **Accent Conversion with Articulatory Representations**（Interspeech 2023）
+  - 調音的中間表現（TVs）とPPGを用いてL2話者の音声をL1話者風に変換。音素単位制御に基づく生成手法。
 
-- **Transformer Interpretability Beyond Attention Visualization** (2021, CVPR)
-  - Attention可視化の限界を指摘し、Gradient RolloutやInput Attributionなどの代替技術を検討。
+- **Layer-wise Analysis of a Self-supervised Speech Representation Model**（ASRU 2021）
+  - HuBERTなどの層ごとに含まれる音韻・話者情報の変化を可視化。モデルの中間表現の役割を解明。
 
-- **Explainability of Vision Transformers: A Comprehensive Review and New Perspectives** (2023, TMLR under review)
-  - ViT系モデルに対する解釈性技術（GradCAM, LRP, Rollout など）の体系的レビュー。音声モデル応用の技術的基盤。
+- **Visualizing Automatic Speech Recognition -- Means for a Better Understanding?**（arXiv 2022）
+  - WhisperなどのASRモデルへのGrad-CAM的手法を適用し、時間領域と語出力の関連を視覚的に検証。
 
+- **Explainability of Speech Recognition Transformers via Gradient-based Attention Visualization**（arXiv 2023）
+  - Transformer型ASRへの可視化アプローチを提案。重要な入力フレームの特定に成功。
 
-### 今後の方針
+- **AttnLRP: Attention-Aware Layer-Wise Relevance Propagation for Transformers**（ICASSP 2022）
+  - Transformerのマルチヘッド注意機構を考慮したLRPベースの解釈可能性強化手法。
 
-- HuBERT, TVs, PPG など複数の音響表現を用いた音声変換の実装と比較実験。
-- WhisperやWav2Vec2に対して Grad-CAM/LRP を適用するプロトタイプの設計。
-- ViT系の可視化手法を音声ドメインに応用したツールチェーンの試作。
-- 発話単位での埋め込み変化とスタイル遷移の観測（t-SNEなど）をL2 Arcticで検証。
+- **Transformer Interpretability Beyond Attention Visualization**（CVPR 2021）
+  - Attention可視化を超えて、勾配・中間特徴に基づく総合的なTransformer解釈手法を提案。
+
+- **Explainability of Vision Transformers: A Comprehensive Review and New Perspectives**（TMLR 2023, under review）
+  - ViTにおける可視化・解釈可能性技術の網羅的レビュー。視覚タスクにおけるTransformer理解を前進させた。
+
+---
+
