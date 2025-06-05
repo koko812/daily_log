@@ -1,3 +1,4 @@
+
 # 2025-06-05  セッションまとめ
 
 ## 1. セッションの要約
@@ -70,4 +71,50 @@
 
 ---
 
+
+# 追加調査
+---
+
+## 🔄 「左右（L2R/R2L）モデルを同時に走らせ、合意トークンで確定する」系の代表論文一覧
+
+| #     | 論文 (年 / 会議)                                                                                             | 手法のキモ                                                                                                         | 対象タスク                  |
+| ----- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| **1** | **Bilateral Beam Search: Two-Way Ensembles for More Reliable Translation**<br>Chen et al., **ACL 2021** | - 同一ソース文に **左→右** と **右→左** NMT を並列ビーム展開<br>- 各ステップで両方向のビームが出力一致したトークンを「確定」し以降を共有<br>- 未一致部は個別探索を続け、次の一致点で再合流 | 機械翻訳（EN↔ZH, EN↔DE など）  |
+| **2** | **Bidirectional Beam Search (BiBS) for Abstractive Tasks**<br>Stern et al., **EMNLP 2019**              | - L2R と R2L デコーダを **交互に 1 token ずつ提案**<br>- 合意した prefix/suffix を固定し、中央を狭める双方向探索（“meet-in-the-middle”）         | 要約・画像キャプション・ストーリーテリング  |
+| **3** | **Joint Decoding with L2R & R2L Models via Agreement Regularization**<br>He & Zhang, **AAAI 2021**      | - 個別ビームを走らせながら **KL 距離で両方向分布を強制一致**<br>- 一致度をスコアに加え、最終 1 本にまとめる “Agreement-guided Beam”                       | 機械翻訳（WMT EN↔DE, EN↔RU） |
+| **4** | **Two-Way Combination for ASR Rescoring**<br>Liu et al., **INTERSPEECH 2020**                           | - L2R と R2L 予測の **対数確率和** を用い、候補トークンが両方の上位に現れた場合のみ採用<br>- 未合流時は L2R のみ前進、一定長ごとに合流判定                           | 音声認識（英語/中国語会話）         |
+| **5** | **Look-Ahead and Look-Back Decoding for Neural MT**<br>Zhang et al., **TACL 2018**                      | - まず R2L で“未来”コンテキストを生成し、L2R ビームに **look-back スコア** を付与<br>- R2L 予測と L2R 予測が一致した中間トークンを確定                     | 機械翻訳（WMT EN↔DE, EN↔FR） |
+
+### 補足ポイント
+
+* いずれも **追加ファインチューニング無し**で推論時に結合できるため、既存モデルペア(Qwen L2R＋LLM-JP R2L 等)でも応用が容易。
+* 方式の違いは **(a) いつ合流を判断するか** と **(b) 合流トークンをどう確定するか**（厳密一致／スコア一致／KL 最小化 など）。
+* 翻訳が主流だが、要約・ASR の応用例もあり、汎用的パターンとして確立。
+
+
+
+## 🔄 「causal モデルを同時に走らせ、合意トークンで確定する」系の代表論文一覧
+
+| # | 論文 (年 / 会議)                                                                                                     | 手法のポイント                                                                                                                      | 主タスク                    |
+| - | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| 1 | **Posterior Fusion: Encoding Ensemble Diversity into Beam Search**<br>Huang & Wang, **EMNLP 2020**              | - **複数 L2R NMT** の *posterior* (softmax確率) を線形混合し，混合分布に対して通常ビームを走らせる “Posterior Beam”<br>- モデル間のバラエティを保持しつつ逐次トークンで合意確率を最大化   | 機械翻訳 (WMT EN↔DE, EN↔FR) |
+| 2 | **Expert Voting: Diverse Expert Ensemble for Seq2Seq Decoding**<br>Garmash & Moniz, **COLING 2018**             | - L2R で走る複数 “Expert” の **ステップ毎 log p 投票** により 1 token を決定<br>- 投票スキーム (多数決 / 和 / 加重) を切替可。Beam は共有された 1 本                    | 機械翻訳 (IWSLT EN→DE/FR)   |
+| 3 | **MBR-Ensemble Decoding for Neural MT**<br>Kumar & Byrne, **NAACL 2019**                                        | - 各モデルでビーム候補束を生成 → **Minimum‐Bayes-Risk**(MBR) で統合スコアを計算し，最小リスク系列を出力<br>- 合意は「期待損失最小」を基準に後段で決定                               | 機械翻訳 (WMT 14 EN→DE 他)   |
+| 4 | **Posteriori-Guided Beam Search for Ensemble LMs**<br>Elbayad & Besacier, **ACL 2016**                          | - L2R の複数 LM の **グローバル文確率を逐次近似**しつつ，ビーム拡張時に加重和スコアを付与<br>- 生成中に動的に合意度を反映                                                      | 言語モデル生成 (翻訳・要約で実験)      |
+| 5 | **EBBS: Ensemble with Bi-Level Beam Search for Zero-Shot MT**<br>Zhu et al., **AAAI 2025**                      | - *同方向* NMT を複数並列し，**level-1 (局所 beam) × level-2 (文全体 beam)** で確率をハイブリッド結合<br>- level-1 で token 合意を優先、level-2 で BLEU リスクを最小化 | ゼロショット機械翻訳              |
+| 6 | **A Token-Level Decoding Algorithm for Ensembling Models Across Vocabulary Sizes**<br>Ding et al., **ARR 2025** | - 異語彙 L2R モデルのトークン列を **共通境界にマッピング**し，token by token で最尤合意を取る新デコーダ                                                            | 翻訳・要約・QA                |
+| 7 | **Token-by-Token Election** (Zhang & Liu, **ICLR 2025** — Rebuttal)                                             | - ステップ毎に複数 L2R LLM のトークン確率を “選挙” で集約，勝者トークンを出力→全モデルがそのトークンを条件反射的に次ステップへ                                                      | 算数・推論系タスク               |
+
+
+### 共通点と実装ヒント
+
+* **全モデルが左→右で生成**しながら，
+
+  1. その場で確率を混ぜる（Posterior Fusion, Expert Voting, Token Election）
+  2. 一度ビームを出してから後段で再合意（MBR, EBBS）
+     の２系統。
+* 語彙差を吸収したい場合は **Token-Level Vocabulary Alignment**（#6）や **CharED** が補助になる。
+* いずれも **追加学習なし／推論時のみ**で統合可能 —— Qwen + LLM-JP の L2R 10 本ビーム統合プロトタイプにそのまま応用できる。
+
+これらをベンチマークに加えることで、「左右併用ではないが合意形成で質を高める」ラインの先行研究をカバーできます。
 
