@@ -84,8 +84,9 @@
   > 「基本はローカルで作業、実行だけ Singularity が一般的？」  
 - **アシスタントの回答要約**  
   研究/HPC では王道。`uv`・VSCode で編集し、  
-  ```bash
-  singularity exec --nv --bind $(pwd):/ws image.sif python /ws/run.py
+
+```bash
+singularity exec --nv --bind $(pwd):/ws image.sif python /ws/run.py
 ```
 
 で GPU 本番環境と再現性を両立。
